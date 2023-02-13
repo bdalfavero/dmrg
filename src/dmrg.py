@@ -45,7 +45,7 @@ block2 = block.Block(ham2, end_ops("left"), j_xyz)
 new_ops = [sigma_x, sigma_y, sigma_z]
 
 # Do dmrg steps.
-for i in range(10):
+for i in range(30):
     block1.add_spin(new_ops, "right")
     block2.add_spin(new_ops, "left")
     energy, psi0 = sb.dmrg_step(block1, block2, j_xyz, 20)
