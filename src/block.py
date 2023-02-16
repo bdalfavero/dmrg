@@ -63,3 +63,5 @@ class Block:
             self.end_ops[i] = trans_op.conj().T @ self.end_ops[i] @ trans_op
         # Update the block dimension.
         self.dim = self.hamiltonian.shape[0]
+        # Reset the current transformation operator.
+        self.trans_op = trans_op
