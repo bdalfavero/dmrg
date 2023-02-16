@@ -44,4 +44,5 @@ new_ops = [sigma_x, sigma_y, sigma_z]
 end_ops_lr = (end_ops("left"), end_ops("right"))
 system = sb.DMRGSystem(ham2, end_ops_lr, new_ops, j_xyz, 20)
 
-system.finite_dmrg_algorithm(30)
+energies = system.finite_dmrg_algorithm(30)
+print("Final energy = ", energies[-1])

@@ -70,9 +70,11 @@ class DMRGSystem:
         steps - The number of steps to take.
         """
 
+        energies = np.zeros(steps)
         for i in range(steps):
             self.block1.add_spin(self.new_ops, "right")
             self.block2.add_spin(self.new_ops, "left")
             energy, psi0 = self.finite_dmrg_step()
             length = self.block1.size + self.block2.size
-            print("energy per length = ", energy / float(length))
+            energies[i] = energy / float(length)
+        return energies
