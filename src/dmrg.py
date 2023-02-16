@@ -44,5 +44,11 @@ new_ops = [sigma_x, sigma_y, sigma_z]
 end_ops_lr = (end_ops("left"), end_ops("right"))
 system = sb.DMRGSystem(ham2, end_ops_lr, new_ops, j_xyz, 20)
 
-energies = system.finite_dmrg_algorithm(30)
+energies = system.infinite_dmrg_algorithm(30)
 print("Final energy = ", energies[-1])
+
+print("Sizes = ", system.block1.size, system.block2.size, "Dimensions = ", system.block1.dim, system.block2.dim)
+print("Moving the split.")
+energy, psi0 = system.finite_dmrg_step("right")
+print("Sizes = ", system.block1.size, system.block2.size, "Dimensions = ", system.block1.dim, system.block2.dim)
+print("New energy = ", energy)
