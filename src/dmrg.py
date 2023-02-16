@@ -37,17 +37,11 @@ def end_ops(dir):
                 np.kron(sigma_z, id2)]
 
 
-# Set up initial blocks.
+# Set up initial system.
 ham2 = two_spin_hamiltonian(1.0)
 j_xyz = np.ones(3)
-block1 = block.Block(ham2, end_ops("right"), j_xyz)
-block2 = block.Block(ham2, end_ops("left"), j_xyz)
 new_ops = [sigma_x, sigma_y, sigma_z]
+end_ops_lr = (end_ops("left"), end_ops("right"))
+system = sb.DMRGSystem(ham2, end_ops_lr, new_ops, j_xyz, 20)
 
-# Do dmrg steps.
-for i in range(30):
-    block1.add_spin(new_ops, "right")
-    block2.add_spin(new_ops, "left")
-    energy, psi0 = sb.dmrg_step(block1, block2, j_xyz, 20)
-    length = block1.size + block2.size
-    print("energy per length = ", energy / float(length))
+system.finite_dmrg_algorithm(30)
