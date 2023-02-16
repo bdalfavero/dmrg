@@ -41,6 +41,20 @@ class DMRGSystem:
         for i in range(self.constants.size):
             ham_ab += self.constants[i] * np.kron(self.block1.end_ops[i], self.block2.end_ops[i])
         return sp.csr_matrix(ham_ab)
+    
+    def make_truncation_operators(self, psi0):
+        """
+        Make two operators for truncating the basis of both blocks.
+        """
+
+        # Reshape into the a_jk matrix and do the SVD to get the Schmidt basis.
+        a_jk = psi0.reshape((self.block1.dim, self.block2.dim))
+        u, s, vh = la.svd(a_jk)
+        # Keep the M largest singular values.
+        m = min(self.max_size, s.size)
+        trans_op1 = u[:, 0:(m-1)]
+        trans_op2 = vh.T[:, 0:(m-1)]
+        return (trans_op1, trans_op2)
 
     def finite_dmrg_step(self):
         """
@@ -55,13 +69,8 @@ class DMRGSystem:
         w, v = eigsh(hamiltonian_sb, k=1)
         energy = w[0]
         psi0 = v[:, 0]
-        # Reshape into the a_jk matrix and do the SVD to get the Schmidt basis.
-        a_jk = psi0.reshape((self.block1.dim, self.block2.dim))
-        u, s, vh = la.svd(a_jk)
-        # Keep the M largest singular values.
-        m = min(self.max_size, s.size)
-        trans_op1 = u[:, 0:(m-1)]
-        trans_op2 = vh.T[:, 0:(m-1)]
+        # Get the truncation operators.
+        trans_op1, trans_op2 = self.make_truncation_operators(psi0)
         # Truncate the block operators using the low-rank Schmidt basis.
         self.block1.truncate_operators(trans_op1)
         self.block2.truncate_operators(trans_op2)
