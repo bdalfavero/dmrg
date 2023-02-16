@@ -23,6 +23,10 @@ class DMRGSystem:
         self.block2 = block.Block(ham0, end_ops[1], self.constants)
         self.new_ops = new_ops
         self.max_size = max_size
+        # Set up the history. This is a dictionary with keys
+        # "left" and "right". Each key points to a dictionary
+        # mapping block sizes to blocks.
+        self.history = {"left": {}, "right": {}}
 
     def make_superblock_hamiltonian(self):
         """
@@ -72,9 +76,15 @@ class DMRGSystem:
 
         energies = np.zeros(steps)
         for i in range(steps):
+            # Add a spin to each block and get the energy and ground state.
             self.block1.add_spin(self.new_ops, "right")
             self.block2.add_spin(self.new_ops, "left")
             energy, psi0 = self.finite_dmrg_step()
+            # Store the current energy/length.
             length = self.block1.size + self.block2.size
             energies[i] = energy / float(length)
+            # Add these blocks to the history.
+            self.history["left"][self.block1.size] = self.block1
+            self.history["right"][self.block2.size] = self.block2
+
         return energies
