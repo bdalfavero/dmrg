@@ -39,11 +39,18 @@ class DMRGSystem:
         # TODO: This function is built for the infinite algorithm.
         # Adapt it to the finite algorithm! Block dimensions can differ now.
         
-        # Make identity for block subspace
-        eye_l = np.eye(self.block1.hamiltonian.shape[0])
-        ham_ab = np.kron(self.block1.hamiltonian, eye_l) + np.kron(eye_l, self.block2.hamiltonian)
+        # Check all operator dimensions.
         for i in range(self.constants.size):
-            ham_ab += self.constants[i] * np.kron(self.block1.end_ops[i], self.block2.end_ops[i])
+            assert self.block2.hamiltonian.shape == self.block2.end_ops[i].shape
+            assert self.block1.hamiltonian.shape == self.block1.end_ops[i].shape
+        # Make identities for block subspace
+        eye_l = np.eye(self.block1.hamiltonian.shape[0])
+        eye_r = np.eye(self.block2.hamiltonian.shape[0])
+        ham_ab = np.kron(self.block1.hamiltonian, eye_r) \
+                + np.kron(eye_l, self.block2.hamiltonian)
+        for i in range(self.constants.size):
+            ham_ab += self.constants[i] \
+                    * np.kron(self.block1.end_ops[i], self.block2.end_ops[i])
         return sp.csr_matrix(ham_ab)
     
     def make_truncation_operators(self, psi0):
@@ -135,4 +142,30 @@ class DMRGSystem:
             # Truncate the block on the left.
             self.block1.truncate_operators(trans_op1)
         # Return the ground state and energy.
+        return (energy, psi0)
+    
+    def finite_dmrg_sweep(self, dir):
+        """
+        Perform a sweep in the finite DMRG algorithm.
+
+        Parameters:
+        dir - Direction of sweep, either "left" or "right".
+        """
+
+        if (dir == "right"):
+            while (self.block2.size > min(self.history["right"].keys())):
+                # While we still have a large enough block on the right,
+                # Keep growing the left and shrinking the right.
+                energy, psi0 = self.finite_dmrg_step("right")
+                length = self.block1.size + self.block2.size
+                e_per_l = energy / float(length)
+                print(self.block1.size, self.block2.size, e_per_l, self.constants.size)
+        else:
+            while (self.block1.size > min(self.history["left"].keys())):
+                # While we still have a large enough block on the left,
+                # Keep growing the left and shrinking the right.
+                energy, psi0 = self.finite_dmrg_step("left")
+                length = self.block1.size + self.block2.size
+                e_per_l = energy / float(length)
+                print(self.block1.size, self.block2.size, e_per_l, self.constants.size)
         return (energy, psi0)

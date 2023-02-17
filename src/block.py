@@ -50,6 +50,9 @@ class Block:
         # Update the operator size and spin count.
         self.dim = self.hamiltonian.shape[0]
         self.size += 1
+        # Assert that all dimenions are still good.
+        for i in range(len(self.end_ops)):
+            assert self.end_ops[i].shape == self.hamiltonian.shape
 
     def truncate_operators(self, trans_op):
         """
@@ -65,3 +68,6 @@ class Block:
         self.dim = self.hamiltonian.shape[0]
         # Reset the current transformation operator.
         self.trans_op = trans_op
+        # Assert that all dimensions are good.
+        for i in range(len(self.end_ops)):
+            assert self.end_ops[i].shape == self.hamiltonian.shape
