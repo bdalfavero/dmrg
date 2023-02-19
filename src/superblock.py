@@ -103,9 +103,19 @@ class DMRGSystem:
             # Store the current energy/length.
             length = self.block1.size + self.block2.size
             energies[i] = energy / float(length)
+            # Check all operator dimensions.
+            for i in range(self.constants.size):
+                assert self.block2.hamiltonian.shape == self.block2.end_ops[i].shape
+                assert self.block1.hamiltonian.shape == self.block1.end_ops[i].shape
             # Add these blocks to the history.
-            self.history["left"][self.block1.size] = copy.copy(self.block1)
-            self.history["right"][self.block2.size] = copy.copy(self.block2)
+            self.history["left"][self.block1.size] = copy.deepcopy(self.block1)
+            self.history["right"][self.block2.size] = copy.deepcopy(self.block2)
+            # Check operator dimensions in history.
+            for i in range(self.constants.size):
+                assert self.history["left"][self.block1.size].end_ops[i].shape == \
+                    self.history["left"][self.block1.size].hamiltonian.shape
+                assert self.history["right"][self.block2.size].end_ops[i].shape == \
+                    self.history["right"][self.block2.size].hamiltonian.shape
 
         return energies
     

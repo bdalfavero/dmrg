@@ -47,6 +47,12 @@ system = sb.DMRGSystem(ham2, end_ops_lr, new_ops, j_xyz, 20)
 energies = system.infinite_dmrg_algorithm(30)
 print("Final energy = ", energies[-1])
 
+dir = "right"
+idx = 4
+block = system.history[dir][idx]
+for i in range(len(block.end_ops)):
+    assert block.end_ops[i].shape == block.hamiltonian.shape
+
 print("Performing a sweep...")
 energy, psi0 = system.finite_dmrg_sweep("left")
 length = system.block1.size + system.block2.size
