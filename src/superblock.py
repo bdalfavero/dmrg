@@ -143,14 +143,16 @@ class DMRGSystem:
         w, v = eigsh(hamiltonian_sb, k=1)
         energy = w[0]
         psi0 = v[:, 0]
-        # Truncate the operator that got larger.
+        # Truncate the operator that got larger. Store it to the history.
         trans_op1, trans_op2 = self.make_truncation_operators(psi0)
         if (dir == "left"):
             # Truncate the block on the right.
             self.block2.truncate_operators(trans_op2)
+            self.history["right"][self.block2.size] = copy.deepcopy(self.block2)
         else:
             # Truncate the block on the left.
             self.block1.truncate_operators(trans_op1)
+            self.history["left"][self.block1.size] = copy.deepcopy(self.block1)
         # Return the ground state and energy.
         return (energy, psi0)
     

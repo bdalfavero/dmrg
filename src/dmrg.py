@@ -57,3 +57,8 @@ print("Performing a sweep...")
 energy, psi0 = system.finite_dmrg_sweep("left")
 length = system.block1.size + system.block2.size
 print("Energy = ", energy / float(length))
+
+print("Performing a sweep...")
+energy, psi0 = system.finite_dmrg_sweep("right")
+length = system.block1.size + system.block2.size
+print("Energy = ", energy / float(length))
